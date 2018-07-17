@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.7 AS builder
 
 # add docker user
 RUN apk add --no-cache bash sudo shadow \
@@ -17,9 +17,20 @@ RUN sudo apk add --no-cache \
       gcc \
       g++ \
       linux-headers \
-      musl-dev \
       libxml2-dev \
       libxslt-dev \
+      expat-dev \
+      make \
+      cmake \
+      libtool \
+      automake \
+      autoconf \
+      freetype-dev \
+      libpng-dev \
+      lapack-dev \
+      gfortran \
+      ca-certificates \
+      openssl \
  && python -m ensurepip \
  && sudo rm -r /usr/lib/python*/ensurepip
 
@@ -29,13 +40,14 @@ RUN sudo ln -s /usr/include/locale.h /usr/include/xlocale.h \
 
 # install packages
 # FIXME this is a build-time dependency
-RUN pip install --user --no-cache-dir \
-      statistics \
-      future \
+RUN sudo pip install --no-cache-dir \
+      matplotlib \
+      pyserial \
+      scipy \
       pexpect \
-      geopy \
-      dronekit \
-      dronekit-sitl
+      future \
+      mavproxy \
+      pymavlink==2.2.10
 
 RUN sudo mkdir /opt \
  && sudo chown -R docker /opt \
@@ -66,7 +78,47 @@ RUN ./waf configure \
         CXXFLAGS="-mno-push-args" \
  && ./waf rover -j8
 
-# create a wheel ;-)
+# install test harness
+COPY --from=start-th /opt/start-th /tmp/start-th
+RUN cd /tmp/start-th \
+ && sudo pip install . \
+ && sudo rm -rf /tmp/*
 
+COPY mission.txt /experiment/mission.txt
+COPY attack.py /experiment/attack.py
+COPY scenario.cfg /experiment/config/scenario.cfg
+COPY default.cfg /experiment/config/default.cfg
+RUN sudo chown -R docker /experiment \
+ && mkdir -p /experiment/source/build/sitl/bin \
+ && ln -s /opt/ardupilot/build/sitl/bin/ardurover \
+      /experiment/source/build/sitl/bin/ardurover
 
-# install from wheel in a separate stage
+## it appears that JSBsim isn't required to run the tests
+# WORKDIR /experiment
+# ENV JSBSIM_REVISION 9cc2bf1
+# ENV JSBSIM_REVISION 57af0084c639d411d78f7797a98e165994de3bd4
+# RUN git clone git://github.com/tridge/jsbsim /opt/jsbsim \
+# && cd /opt/jsbsim \
+# && git checkout "${JSBSIM_REVISION}" \
+# &&  ./autogen.sh --enable-libraries \
+# && make -j
+# RUN cd /opt/jsbsim \
+#  && sudo make install
+# ENV PATH "${PATH}:/opt/jsbsim/src"
+# ENV PATH "/usr/games:${PATH}"
+ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
+
+# install dronekit
+RUN sudo pip install --no-cache-dir dronekit dronekit-sitl
+
+# remove unnecessary dependencies
+RUN sudo apk del \
+      freetype-dev \
+      libpng-dev \
+      lapack-dev \
+      gfortran \
+      ca-certificates \
+      openssl \
+      libtool \
+      automake \
+      autoconf
