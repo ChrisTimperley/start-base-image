@@ -124,6 +124,7 @@ RUN sudo apk del \
       autoconf
 
 RUN sudo apk add --no-cache libc6-compat
+RUN sudo chown -R docker /opt
 
 ## we need to build glibc to allow coverage information to be collected
 ## https://github.com/frol/docker-alpine-glibc/blob/master/Dockerfile
@@ -156,3 +157,5 @@ RUN sudo apk add --no-cache libc6-compat
 #       "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
 #       "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 #USER docker
+
+RUN sudo pip install --no-cache-dir gcovr

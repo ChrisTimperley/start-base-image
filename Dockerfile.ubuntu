@@ -102,3 +102,7 @@ RUN sudo apt-get remove -y \
       libtool \
       automake \
       autoconf
+
+RUN sudo chown -R docker /opt
+
+RUN sudo pip install -no-cache gcovr
