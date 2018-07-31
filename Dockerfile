@@ -31,6 +31,8 @@ RUN sudo apk add --no-cache \
       gfortran \
       ca-certificates \
       openssl \
+      libc6-compat \
+      gawk \
  && python -m ensurepip \
  && sudo rm -r /usr/lib/python*/ensurepip
 
@@ -47,6 +49,7 @@ RUN sudo pip install --no-cache-dir \
       pexpect \
       future \
       mavproxy \
+      gcovr \
       pymavlink==2.2.10
 
 RUN sudo mkdir /opt \
@@ -76,7 +79,8 @@ RUN sed -i 's/feenableexcept(exceptions);/\/\/feenableexcept(exceptions);/' libr
 RUN ./waf configure \
         --no-submodule-update \
         CXXFLAGS="-mno-push-args" \
- && ./waf rover -j8
+ && ./waf rover -j8 \
+ && sudo chown -R docker /opt
 
 # install test harness
 COPY --from=start-th /opt/start-th /tmp/start-th
@@ -93,19 +97,6 @@ RUN sudo chown -R docker /experiment \
  && ln -s /opt/ardupilot/build/sitl/bin/ardurover \
       /experiment/source/build/sitl/bin/ardurover
 
-## it appears that JSBsim isn't required to run the tests
-# WORKDIR /experiment
-# ENV JSBSIM_REVISION 9cc2bf1
-# ENV JSBSIM_REVISION 57af0084c639d411d78f7797a98e165994de3bd4
-# RUN git clone git://github.com/tridge/jsbsim /opt/jsbsim \
-# && cd /opt/jsbsim \
-# && git checkout "${JSBSIM_REVISION}" \
-# &&  ./autogen.sh --enable-libraries \
-# && make -j
-# RUN cd /opt/jsbsim \
-#  && sudo make install
-# ENV PATH "${PATH}:/opt/jsbsim/src"
-# ENV PATH "/usr/games:${PATH}"
 ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
 
 # install dronekit
@@ -122,40 +113,3 @@ RUN sudo apk del \
       libtool \
       automake \
       autoconf
-
-RUN sudo apk add --no-cache libc6-compat
-RUN sudo chown -R docker /opt
-
-## we need to build glibc to allow coverage information to be collected
-## https://github.com/frol/docker-alpine-glibc/blob/master/Dockerfile
-#ENV LANG=C.UTF-8
-#USER root
-#RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-# && ALPINE_GLIBC_PACKAGE_VERSION="2.27-r0" \
-# && ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" \
-# && ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" \
-# && ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" \
-# && apk add --no-cache --virtual=.build-dependencies wget ca-certificates \
-# && wget -nv \
-#        https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub \
-#        -O /etc/apk/keys/sgerrand.rsa.pub \
-# && wget \
-#        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" \
-# && apk add --no-cache \
-#        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" \
-# && rm /etc/apk/keys/sgerrand.rsa.pub \
-# && /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true \
-# && echo "export LANG=$LANG" > /etc/profile.d/locale.sh \
-# && apk del glibc-i18n \
-# && rm /root/.wget-hsts \
-# && apk del .build-dependencies \
-# && rm "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-#       "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-#       "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
-#USER docker
-
-RUN sudo pip install --no-cache-dir gcovr
