@@ -62,7 +62,8 @@ RUN sudo mkdir -p /opt \
  && find . -name .git -exec rm -rf {} \+ \
  && git init \
  && git add --all . \
- && git commit -m "borked"
+ && git commit -m "borked" \
+ && sudo chown -R docker /opt
 WORKDIR /opt/ardupilot
 
 # NOTE -mno-push-args is required by zipr
@@ -71,25 +72,13 @@ RUN ./waf configure \
         CXXFLAGS="-mno-push-args" \
  && ./waf rover -j8
 
-# install test harness
-COPY --from=start-th /opt/start-th /tmp/start-th
-RUN cd /tmp/start-th \
- && sudo pip install . \
- && sudo rm -rf /tmp/*
-
-COPY mission.txt /experiment/mission.txt
-COPY attack.py /experiment/attack.py
-COPY scenario.cfg /experiment/config/scenario.cfg
-COPY default.cfg /experiment/config/default.cfg
-RUN sudo chown -R docker /experiment \
- && mkdir -p /experiment/source/build/sitl/bin \
- && ln -s /opt/ardupilot/build/sitl/bin/ardurover \
-      /experiment/source/build/sitl/bin/ardurover
-
 ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
 
-# install dronekit
-RUN sudo pip install --no-cache-dir dronekit dronekit-sitl
+# install dronekit and gcovr
+RUN sudo pip install --no-cache-dir \
+      dronekit \
+      dronekit-sitl \
+      gcovr
 
 # remove unnecessary dependencies
 RUN sudo apt-get remove -y \
@@ -103,6 +92,8 @@ RUN sudo apt-get remove -y \
       automake \
       autoconf
 
-RUN sudo chown -R docker /opt
-
-RUN sudo pip install -no-cache gcovr
+# install test harness
+COPY --from=start-th /opt/start-th /tmp/start-th
+RUN cd /tmp/start-th \
+ && sudo pip install . \
+ && sudo rm -rf /tmp/*
