@@ -13,6 +13,6 @@ setuptools.setup(
     packages=['start_image'],
     data_files=[('docker', ['Dockerfile'])],
     entry_points = {
-        'console_scripts': [ 'start-cli = start_image.cli:main' ]
+        'console_scripts': [ 'start-image = start_image.cli:main' ]
     }
 )
