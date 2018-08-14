@@ -38,10 +38,11 @@ def __docker_client():  # type: () -> docker.DockerClient
 def build_base_image():  # type: () -> None
     logger.debug("building base image")
     dkr = __docker_client()
+    print(DIR_DOCKER)
     try:
         dkr.images.build(path=DIR_DOCKER,
                          tag=BASE_IMAGE_NAME,
-                         squash=True)
+                         rm=True)
     except:
         logger.exception("unexpected error when building base image")
         raise
@@ -54,6 +55,10 @@ def build_scenario_image(scenario):  # type: (Scenario) -> None
     dkr = __docker_client()
     build_base_image()
 
+    # FIXME temporary values
+    scenario.diff_fn = "TODO"
+    scenario.revision = "TODO"
+
     # create a temporary directory for the scenario
     dir_build = tempfile.mkdtemp('.start')
     try:
@@ -64,7 +69,7 @@ def build_scenario_image(scenario):  # type: (Scenario) -> None
         dkr.images.prune()
         dkr.images.build(path=dir_build,
                          tag=image_name(scenario),
-                         squash=True,
+                         rm=True,
                          buildargs={'REVISION': scenario.revision})  # FIXME scenario.revision
     except:
         logger.exception("unexpected error when building scenario image")
