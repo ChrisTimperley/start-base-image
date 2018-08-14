@@ -1,2 +1,4 @@
-# start-base-image
-Provides a base image for the versions of ArduPilot used in the START project
+# start_image
+
+This module is responsible for building and managing the Docker images for
+each scenario.
