@@ -9,6 +9,8 @@ import logging
 from start_core.scenario import Scenario
 from start_core.exceptions import STARTException
 
+from .build import build_base_image, build_scenario_image
+
 logger = logging.getLogger(__name__)  # type: logging.Logger
 logger.setLevel(logging.DEBUG)
 
@@ -27,6 +29,7 @@ def main():  # type: () -> None
     def build_image(args):
         logger.info("loading scenario from file [%s]", args.filename)
         scenario = Scenario.from_file(args.filename)
+        build_scenario_image(scenario)
         logger.info("loaded scenario [%s]", scenario.name)
         logger.info("built image for scenario [%s]", scenario.name)
     cmd.set_defaults(func=build_image)
@@ -39,7 +42,7 @@ def main():  # type: () -> None
     log_to_stdout = logging.StreamHandler()
     log_to_stdout.setLevel(logging.INFO)
     log_to_stdout.setFormatter(log_to_stdout_formatter)
-    logger.addHandler(log_to_stdout)
+    logging.getLogger('start_image').addHandler(log_to_stdout)
 
     try:
         args = parser.parse_args()
