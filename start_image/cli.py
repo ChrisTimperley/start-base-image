@@ -29,12 +29,15 @@ def main():  # type: () -> None
     def build_image(args):
         logger.info("loading scenario from file [%s]", args.filename)
         scenario = Scenario.from_file(args.filename)
+        logger.info("building image for scenario [%s]", scenario.name)
         build_scenario_image(scenario)
-        logger.info("loaded scenario [%s]", scenario.name)
         logger.info("built image for scenario [%s]", scenario.name)
     cmd.set_defaults(func=build_image)
     cmd.add_argument('filename',
                      help="the path to the scenario's configuration file.")
+    cmd.add_argument('debug',
+                     help="prints debugging information to the stdout.",
+                     action='store_true')
 
     log_to_stdout_formatter = logging.Formatter(
         '%(asctime)s:%(levelname)s: %(message)s',
@@ -46,6 +49,8 @@ def main():  # type: () -> None
 
     try:
         args = parser.parse_args()
+        if args.debug:
+            log_to_stdout.setLevel(logging.DEBUG)
         args.func(args)
     except STARTException as e:
         logger.exception("An error occurred during command execution: %s", e)
