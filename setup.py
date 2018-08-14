@@ -11,7 +11,7 @@ setuptools.setup(
     install_requires=['docker'],
     include_package_data=True,
     packages=['start_image'],
-    data_files=[('docker', ['Dockerfile'])],
+    package_data={'': ['Dockerfile']},
     entry_points = {
         'console_scripts': [ 'start-image = start_image.cli:main' ]
     }
