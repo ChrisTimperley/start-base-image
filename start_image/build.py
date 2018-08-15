@@ -18,7 +18,7 @@ from .name import name as image_name
 logger = logging.getLogger(__name__)   # type: logging.Logger
 logger.setLevel(logging.DEBUG)
 
-DIR_DOCKER = os.path.join(os.path.dirname(__file__), '../docker')
+DIR_DOCKER = os.path.dirname(__file__)
 DOCKERFILE_SCENARIO = os.path.join(DIR_DOCKER, 'Dockerfile.scenario')
 
 
@@ -38,7 +38,6 @@ def __docker_client():  # type: () -> docker.DockerClient
 def build_base_image():  # type: () -> None
     logger.debug("building base image")
     dkr = __docker_client()
-    print(DIR_DOCKER)
     try:
         dkr.images.build(path=DIR_DOCKER,
                          tag=BASE_IMAGE_NAME,
@@ -55,15 +54,11 @@ def build_scenario_image(scenario):  # type: (Scenario) -> None
     dkr = __docker_client()
     build_base_image()
 
-    # FIXME temporary values
-    scenario.diff_fn = "TODO"
-    scenario.revision = "TODO"
-
     # create a temporary directory for the scenario
     dir_build = tempfile.mkdtemp('.start')
     try:
         dockerfile = os.path.join(dir_build, 'Dockerfile')
-        diff_fn = os.path.join(dir_build, 'bug.diff')
+        diff_fn = os.path.join(dir_build, 'vulnerability.diff')
         shutil.copyfile(DOCKERFILE_SCENARIO, dockerfile)
         shutil.copyfile(scenario.diff_fn, diff_fn)  # FIXME scenario.diff_fn
         dkr.images.prune()
