@@ -56,13 +56,6 @@ RUN sudo mkdir -p /opt \
  && cd ardupilot \
  && git checkout Rover-3.4.0 \
  && git submodule update --init --recursive \
- && git config --global user.name start \
- && git config --global user.email start \
- && rm -rf .git \
- && find . -name .git -exec rm -rf {} \+ \
- && git init \
- && git add --all . \
- && git commit -m "borked" \
  && sudo chown -R docker /opt
 WORKDIR /opt/ardupilot
 
@@ -92,8 +85,8 @@ RUN sudo apt-get remove -y \
       automake \
       autoconf
 
-# install test harness
-COPY --from=start-th /opt/start-th /tmp/start-th
-RUN cd /tmp/start-th \
- && sudo pip install . \
- && sudo rm -rf /tmp/*
+# TODO install test harness
+# COPY --from=start-th /opt/start-th /tmp/start-th
+# RUN cd /tmp/start-th \
+#  && sudo pip install . \
+#  && sudo rm -rf /tmp/*

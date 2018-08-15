@@ -1,0 +1,11 @@
+FROM christimperley/start:base
+ARG REVISION
+COPY vulnerability.diff /opt/ardupilot
+RUN cd /opt/ardupilot \
+ && git checkout "${REVISION}" \
+ && git submodule update --init --recursive \
+ && git apply vulnerability.diff \
+ && ./waf configure \
+        --no-submodule-update \
+        CXXFLAGS="-mno-push-args" \
+ && ./waf rover -j8
