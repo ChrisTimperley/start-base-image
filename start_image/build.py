@@ -60,12 +60,12 @@ def build_scenario_image(scenario):  # type: (Scenario) -> None
         dockerfile = os.path.join(dir_build, 'Dockerfile')
         diff_fn = os.path.join(dir_build, 'vulnerability.diff')
         shutil.copyfile(DOCKERFILE_SCENARIO, dockerfile)
-        shutil.copyfile(scenario.diff_fn, diff_fn)  # FIXME scenario.diff_fn
+        shutil.copyfile(scenario.diff_fn, diff_fn)
         dkr.images.prune()
         dkr.images.build(path=dir_build,
                          tag=image_name(scenario),
                          rm=True,
-                         buildargs={'REVISION': scenario.revision})  # FIXME scenario.revision
+                         buildargs={'REVISION': scenario.revision})
     except:
         logger.exception("unexpected error when building scenario image")
         raise
