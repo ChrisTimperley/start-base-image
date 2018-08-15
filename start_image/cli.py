@@ -10,6 +10,7 @@ from start_core.scenario import Scenario
 from start_core.exceptions import STARTException
 
 from .build import build_base_image, build_scenario_image
+from .name import name as image_name
 
 logger = logging.getLogger(__name__)  # type: logging.Logger
 logger.setLevel(logging.DEBUG)
@@ -29,9 +30,12 @@ def main():  # type: () -> None
     def build_image(args):
         logger.info("loading scenario from file [%s]", args.filename)
         scenario = Scenario.from_file(args.filename)
-        logger.info("building image for scenario [%s]", scenario.name)
+        image = image_name(scenario)
+        logger.info("building image [%s] for scenario [%s]",
+                    image, scenario.name)
         build_scenario_image(scenario)
-        logger.info("built image for scenario [%s]", scenario.name)
+        logger.info("built image [%s] for scenario [%s]",
+                    image, scenario.name)
     cmd.set_defaults(func=build_image)
     cmd.add_argument('filename',
                      help="the path to the scenario's configuration file.")
