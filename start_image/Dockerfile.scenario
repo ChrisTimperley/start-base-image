@@ -3,6 +3,8 @@ ARG REVISION
 COPY vulnerability.diff /opt/ardupilot
 COPY scenario.config /opt/ardupilot
 COPY mission.txt /opt/ardupilot
+COPY attack.py /opt/ardupilot
+# TODO fix mission and attack paths in config file
 RUN cd /opt/ardupilot \
  && git checkout "${REVISION}" \
  && git submodule update --init --recursive \

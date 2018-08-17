@@ -61,9 +61,11 @@ def build_scenario_image(scenario):  # type: (Scenario) -> None
         diff_fn = os.path.join(dir_build, 'vulnerability.diff')
         cfg_fn = os.path.join(dir_build, 'scenario.config')
         mission_fn = os.path.join(dir_build, 'mission.txt')
+        attack_fn = os.path.join(dir_build, 'attack.py')
         shutil.copyfile(DOCKERFILE_SCENARIO, dockerfile)
         shutil.copyfile(scenario.diff_fn, diff_fn)
         shutil.copyfile(scenario.filename, cfg_fn)
+        shutil.copyfile(scenario.attack.script, attack_fn)
         # FIXME scenario config assumes mission is stored in mission.txt
         shutil.copyfile(scenario.mission.filename, mission_fn)
         dkr.images.prune()
