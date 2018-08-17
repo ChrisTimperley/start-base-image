@@ -2,6 +2,7 @@ FROM christimperley/start:base
 ARG REVISION
 COPY vulnerability.diff /opt/ardupilot
 COPY scenario.config /opt/ardupilot
+COPY mission.txt /opt/ardupilot
 RUN cd /opt/ardupilot \
  && git checkout "${REVISION}" \
  && git submodule update --init --recursive \
