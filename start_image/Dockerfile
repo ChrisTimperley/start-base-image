@@ -71,7 +71,9 @@ ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
 RUN pip install --user --no-cache-dir \
       dronekit \
       dronekit-sitl \
-      gcovr
+      gcovr \
+      wheel \
+      pymavlink==2.2.10
 
 ENV PATH "/home/docker/.local/bin:${PATH}"
 
