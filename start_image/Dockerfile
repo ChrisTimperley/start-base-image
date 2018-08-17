@@ -68,25 +68,36 @@ RUN ./waf configure \
 ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
 
 # install dronekit and gcovr
-RUN sudo pip install --no-cache-dir \
+RUN pip install --user --no-cache-dir \
       dronekit \
       dronekit-sitl \
       gcovr
 
-# remove unnecessary dependencies
-RUN sudo apt-get remove -y \
-      libfreetype6-dev \
-      libpng-dev \
-      liblapack-dev \
-      gfortran \
-      ca-certificates \
-      openssl \
-      libtool \
-      automake \
-      autoconf
+ENV PATH "/home/docker/.local/bin:${PATH}"
 
-# TODO install test harness
-# COPY --from=start-th /opt/start-th /tmp/start-th
-# RUN cd /tmp/start-th \
-#  && sudo pip install . \
-#  && sudo rm -rf /tmp/*
+COPY --from=christimperley/start:stack /opt/start /tmp/start
+RUN sudo apt-get update \
+ && sudo apt-get install -y vim python3 python3-dev curl \
+ && cd /tmp \
+ && curl https://bootstrap.pypa.io/get-pip.py -q -o get-pip.py \
+ && python3 get-pip.py --user \
+ && pip3 install wheel --user \
+ && cd /tmp/start \
+ && (cd start_core && pip install --user .) \
+ && (cd start_image && pip install --user .) \
+ && (cd start_repair && pip install --user .) \
+ && (cd start_dbi && pip install --user .) \
+ && (cd start_cli && pip install --user .) \
+ && sudo rm -rf /tmp/*
+
+# remove unnecessary dependencies
+#RUN sudo apt-get remove -y \
+#      libfreetype6-dev \
+#      libpng-dev \
+#      liblapack-dev \
+#      gfortran \
+#      ca-certificates \
+#      openssl \
+#      libtool \
+#      automake \
+#      autoconf
