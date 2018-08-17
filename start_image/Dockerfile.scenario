@@ -6,10 +6,14 @@ COPY mission.txt /opt/ardupilot
 COPY attack.py /opt/ardupilot
 # TODO fix mission and attack paths in config file
 RUN cd /opt/ardupilot \
+ && sudo chown -R docker . \
  && git checkout "${REVISION}" \
  && git submodule update --init --recursive \
  && git apply vulnerability.diff \
  && ./waf configure \
         --no-submodule-update \
         CXXFLAGS="-mno-push-args" \
- && ./waf rover -j8
+ && ./waf build -j8
+# FIXME quick hack
+RUN cd /opt/ardupilot \
+ && sed -i "s#vulnerable_ardupilot#/opt/ardupilot#g" scenario.config
