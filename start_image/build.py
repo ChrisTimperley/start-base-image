@@ -59,8 +59,10 @@ def build_scenario_image(scenario):  # type: (Scenario) -> None
     try:
         dockerfile = os.path.join(dir_build, 'Dockerfile')
         diff_fn = os.path.join(dir_build, 'vulnerability.diff')
+        cfg_fn = os.path.join(dir_build, 'scenario.config')
         shutil.copyfile(DOCKERFILE_SCENARIO, dockerfile)
         shutil.copyfile(scenario.diff_fn, diff_fn)
+        shutil.copyfile(scenario.filename, cfg_fn)
         dkr.images.prune()
         dkr.images.build(path=dir_build,
                          tag=image_name(scenario),
