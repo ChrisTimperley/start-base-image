@@ -77,19 +77,19 @@ RUN pip install --user --no-cache-dir \
 
 ENV PATH "/home/docker/.local/bin:${PATH}"
 
+# && curl https://bootstrap.pypa.io/get-pip.py -q -o get-pip.py \
+# && python get-pip.py --user \
 COPY --from=christimperley/start:stack /opt/start /tmp/start
 RUN sudo apt-get update \
- && sudo apt-get install -y vim python3 python3-dev curl \
+ && sudo apt-get install -y vim python-dev curl \
+ && pip install --upgrade pip==9.0.3 \
  && cd /tmp \
- && curl https://bootstrap.pypa.io/get-pip.py -q -o get-pip.py \
- && python3 get-pip.py --user \
- && pip3 install wheel --user \
+ && pip install wheel --user \
  && cd /tmp/start \
- && (cd start_core && pip install --user .) \
- && (cd start_image && pip install --user .) \
- && (cd start_repair && pip install --user .) \
- && (cd start_dbi && pip install --user .) \
- && (cd start_cli && pip install --user .) \
+ && (cd start_core && pip2 install --user .) \
+ && (cd start_image && pip2 install --user .) \
+ && (cd start_dbi && pip2 install --user .) \
+ && (cd start_cli && pip2 install --user .) \
  && sudo rm -rf /tmp/*
 
 # remove unnecessary dependencies
