@@ -39,14 +39,16 @@ RUN sudo apt-get update \
 
 # install packages
 # FIXME this is a build-time dependency
-RUN sudo pip install --no-cache-dir setuptools \
- && sudo pip install --no-cache-dir \
+RUN pip install --no-cache-dir --upgrade pip==9.0.3 \
+ && pip install --user --no-cache-dir setuptools wheel \
+ && pip install --user --no-cache-dir \
       matplotlib \
       pyserial \
       scipy \
       pexpect \
       future \
       mavproxy \
+      gcovr \
       pymavlink==2.2.10
 
 RUN sudo mkdir -p /opt \
@@ -67,29 +69,26 @@ RUN ./waf configure \
 
 ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
 
-# install dronekit and gcovr
-RUN pip install --user --no-cache-dir \
-      dronekit \
-      dronekit-sitl \
-      gcovr \
-      wheel \
-      pymavlink==2.2.10
+# Unfortunately, we need to build Dronekit from source to avoid the
+# dependency hell created by the latest stable release on PyPI.
+RUN git clone https://github.com/dronekit/dronekit-python /tmp/dronekit \
+ && git clone https://github.com/dronekit/dronekit-sitl /tmp/dronekit-sitl \
+ && cd /tmp/dronekit \
+ && git checkout a20eadf92b5d30940a7533a8a57a39273cdf3938 \
+ && pip install --no-cache-dir --user . \
+ && cd /tmp/dronekit-sitl \
+ && git checkout 9a2d6592f7844d7df17d417cd33a9de8386cdaae \
+ && pip install --no-cache-dir --user . \
+ && rm -rf /tmp/*
 
 ENV PATH "/home/docker/.local/bin:${PATH}"
 
-# && curl https://bootstrap.pypa.io/get-pip.py -q -o get-pip.py \
-# && python get-pip.py --user \
-COPY --from=christimperley/start:stack /opt/start /tmp/start
-RUN sudo apt-get update \
- && sudo apt-get install -y vim python-dev curl \
- && pip install --upgrade pip==9.0.3 \
- && pip install wheel --user \
- && mkdir /opt/start \
- && cd /opt/start \
- && (cd start_core && pip2 install --user .) \
- && (cd start_image && pip2 install --user .) \
- && (cd start_dbi && pip2 install --user .) \
- && (cd start_cli && pip2 install --user .) \
+COPY --from=christimperley/start:stack /opt/start /opt/start
+RUN cd /opt/start \
+ && (cd start_core && pip install --user .) \
+ && (cd start_image && pip install --user .) \
+ && (cd start_dbi && pip install --user .) \
+ && (cd start_cli && pip install --user .) \
  && sudo rm -rf /tmp/*
 
 # remove unnecessary dependencies
