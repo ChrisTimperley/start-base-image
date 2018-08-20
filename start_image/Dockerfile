@@ -83,9 +83,9 @@ COPY --from=christimperley/start:stack /opt/start /tmp/start
 RUN sudo apt-get update \
  && sudo apt-get install -y vim python-dev curl \
  && pip install --upgrade pip==9.0.3 \
- && cd /tmp \
  && pip install wheel --user \
- && cd /tmp/start \
+ && mkdir /opt/start \
+ && cd /opt/start \
  && (cd start_core && pip2 install --user .) \
  && (cd start_image && pip2 install --user .) \
  && (cd start_dbi && pip2 install --user .) \
