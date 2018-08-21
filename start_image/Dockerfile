@@ -105,6 +105,7 @@ RUN cd /opt/start \
  && sudo rm -rf /tmp/*
 
 COPY --from=christimperley/kaskara:latest /opt/kaskara /opt/kaskara
+ENV PATH "/opt/kaskara/scripts:${PATH}"
 
 # remove unnecessary dependencies
 #RUN sudo apt-get remove -y \
