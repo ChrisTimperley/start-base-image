@@ -91,6 +91,8 @@ RUN cd /opt/start \
  && (cd start_cli && pip install --user .) \
  && sudo rm -rf /tmp/*
 
+COPY --from=christimperley/kaskara:latest /opt/kaskara /opt/kaskara
+
 # remove unnecessary dependencies
 #RUN sudo apt-get remove -y \
 #      libfreetype6-dev \
