@@ -51,6 +51,18 @@ RUN pip install --no-cache-dir --upgrade pip==9.0.3 \
       gcovr \
       pymavlink==2.2.10
 
+# install bear
+RUN cd /tmp \
+ && wget https://github.com/rizsotto/Bear/archive/2.3.11.tar.gz \
+ && tar -xf 2.3.11.tar.gz \
+ && cd Bear-2.3.11 \
+ && mkdir build \
+ && cd build \
+ && cmake .. \
+ && make all \
+ && make install \
+ && rm -rf /tmp/*
+
 RUN sudo mkdir -p /opt \
  && sudo chown -R docker /opt \
  && cd /opt \
