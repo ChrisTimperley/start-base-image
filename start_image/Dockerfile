@@ -34,6 +34,7 @@ RUN sudo apt-get update \
       gfortran \
       ca-certificates \
       openssl \
+      wget \
  && sudo apt-get clean \
  && sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -53,14 +54,14 @@ RUN pip install --no-cache-dir --upgrade pip==9.0.3 \
 
 # install bear
 RUN cd /tmp \
- && wget https://github.com/rizsotto/Bear/archive/2.3.11.tar.gz \
+ && wget -nv https://github.com/rizsotto/Bear/archive/2.3.11.tar.gz \
  && tar -xf 2.3.11.tar.gz \
  && cd Bear-2.3.11 \
  && mkdir build \
  && cd build \
  && cmake .. \
  && make all \
- && make install \
+ && sudo make install \
  && rm -rf /tmp/*
 
 RUN sudo mkdir -p /opt \
@@ -77,7 +78,7 @@ WORKDIR /opt/ardupilot
 RUN ./waf configure \
         --no-submodule-update \
         CXXFLAGS="-mno-push-args" \
- && ./waf rover -j8
+ && bear ./waf rover -j8
 
 ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
 
