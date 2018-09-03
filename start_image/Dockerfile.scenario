@@ -4,8 +4,11 @@ COPY vulnerability.diff /opt/ardupilot
 COPY scenario.config /opt/ardupilot
 COPY mission.txt /opt/ardupilot
 COPY attack.py /opt/ardupilot
-# TODO fix mission and attack paths in config file
 RUN cd /opt/ardupilot \
+ && sed -i "s#^vulnerability = .*\$#vulnerability = vulnerability.diff#g" scenario.config \
+ && sed -i "s#^mission = .*\$#mission = mission.txt#g" scenario.config \
+ && sed -i "s#^attack = .*\$#attack = attack.py#g" scenario.config \
+ && sed -i "s#^ardupilot = .*\$#ardupilot = /opt/ardupilot#g" scenario.config \
  && sudo chown -R docker . \
  && git checkout "${REVISION}" \
  && git submodule update --init --recursive \
@@ -14,6 +17,3 @@ RUN cd /opt/ardupilot \
         --no-submodule-update \
         CXXFLAGS="-mno-push-args" \
  && ./waf build -j8
-# FIXME quick hack
-RUN cd /opt/ardupilot \
- && sed -i "s#vulnerable_ardupilot#/opt/ardupilot#g" scenario.config
