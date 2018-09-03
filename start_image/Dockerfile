@@ -77,7 +77,7 @@ WORKDIR /opt/ardupilot
 # NOTE -mno-push-args is required by zipr
 RUN ./waf configure \
         --no-submodule-update \
-        CXXFLAGS="-mno-push-args -Wno-error=maybe-uninitialized" \
+        CXXFLAGS="-mno-push-args -Wno-error=maybe-uninitialized -Wno-error-pointer-arith" \
  && bear ./waf build -j8
 
 ENV PATH "${PATH}:/opt/ardupilot/Tools/autotest"
