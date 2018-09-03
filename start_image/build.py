@@ -23,7 +23,7 @@ DOCKERFILE_SCENARIO = os.path.join(DIR_DOCKER, 'Dockerfile.scenario')
 
 
 __DOCKER_CLIENT = None  # type: Optional[docker.DockerClient]
-def __docker_client():  # type: () -> docker.DockerClient
+def _docker_client():  # type: () -> docker.DockerClient
     global __DOCKER_CLIENT
     if __DOCKER_CLIENT:
         return __DOCKER_CLIENT
@@ -37,7 +37,7 @@ def __docker_client():  # type: () -> docker.DockerClient
 
 def build_base_image():  # type: () -> None
     logger.debug("building base image")
-    dkr = __docker_client()
+    dkr = _docker_client()
     try:
         dkr.images.build(path=DIR_DOCKER,
                          tag=BASE_IMAGE_NAME,
@@ -51,7 +51,7 @@ def build_base_image():  # type: () -> None
 
 def build_scenario_image(scenario):  # type: (Scenario) -> None
     logger.debug("building image for scenario: %s", scenario.name)
-    dkr = __docker_client()
+    dkr = _docker_client()
     build_base_image()
 
     # create a temporary directory for the scenario
