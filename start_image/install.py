@@ -2,7 +2,7 @@ import logging
 
 from start_core.scenario import Scenario
 
-from .name import name as image_name
+from .name import name as image_name, repo_and_tag
 from .build import _docker_client
 
 logger = logging.getLogger(__name__)   # type: logging.Logger
@@ -32,12 +32,12 @@ def install_from_archive(scenario, fn_archive):
     logger.debug("installing Docker image for scenario [%s] from archive: %s",
                  scenario.name, fn_archive)
     dkr = _docker_client()
+    repo, tag = repo_and_tag(scenario)
     try:
         with open(fn_archive, 'rb') as f:
-            dkr.images.build(fileobj=f,
-                             tag=image_name(scenario),
-                             rm=True)
+            images = dkr.images.load(f)
+            # image.tag(repo, tag, force=True)
     except IOError:
-        logger.debug("failed to open archive: %s", fn)
+        logger.debug("failed to open archive: %s", fn_archive)
         raise
-    logger.debug("installed Docker image from archive: %s", fn)
+    logger.debug("installed Docker image from archive: %s", fn_archive)
