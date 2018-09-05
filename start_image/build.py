@@ -32,14 +32,14 @@ def build_base_image(dkr):  # type: (DockerClient) -> None
     except:
         logger.exception("unexpected error when building base image")
         raise
-    dkr.images.prune()
+    # dkr.images.prune()
     logger.debug("built base image")
 
 
 def build_scenario_image(dkr, scenario):
     # type: (DockerClient, Scenario) -> None
     logger.debug("building image for scenario: %s", scenario.name)
-    build_base_image(dkr)
+    # build_base_image(dkr)
 
     # create a temporary directory for the scenario
     dir_build = tempfile.mkdtemp('.start')
@@ -53,9 +53,8 @@ def build_scenario_image(dkr, scenario):
         shutil.copyfile(scenario.diff_fn, diff_fn)
         shutil.copyfile(scenario.filename, cfg_fn)
         shutil.copyfile(scenario.attack.script, attack_fn)
-        # FIXME scenario config assumes mission is stored in mission.txt
         shutil.copyfile(scenario.mission.filename, mission_fn)
-        dkr.images.prune()
+        # dkr.images.prune()
         dkr.images.build(path=dir_build,
                          tag=image_name(scenario),
                          rm=True,
