@@ -1,20 +1,19 @@
 import logging
 
 from start_core.scenario import Scenario
+from docker import DockerClient
 
 from .name import name as image_name, repo_and_tag
-from .build import _docker_client
 
 logger = logging.getLogger(__name__)   # type: logging.Logger
 logger.setLevel(logging.DEBUG)
 
 
-def save_to_archive(scenario, fn_archive):
-    # type: (Scenario, str) -> None
+def save_to_archive(dkr, scenario, fn_archive):
+    # type: (DockerClient, Scenario, str) -> None
     name_image = image_name(scenario)
     logger.debug("saving Docker image [%s] for scenario [%s] to archive: %s",
                  name_image, scenario.name, fn_archive)
-    dkr = _docker_client()
     image = dkr.images.get(name_image)
     try:
         with open(fn_archive, 'wb') as f:
@@ -27,11 +26,10 @@ def save_to_archive(scenario, fn_archive):
                  name_image, scenario.name, fn_archive)
 
 
-def install_from_archive(scenario, fn_archive):
-    # type: (Scenario, str) -> None
+def install_from_archive(dkr, scenario, fn_archive):
+    # type: (DockerClient, Scenario, str) -> None
     logger.debug("installing Docker image for scenario [%s] from archive: %s",
                  scenario.name, fn_archive)
-    dkr = _docker_client()
     repo, tag = repo_and_tag(scenario)
     try:
         with open(fn_archive, 'rb') as f:

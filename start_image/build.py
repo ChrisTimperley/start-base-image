@@ -9,6 +9,7 @@ import tempfile
 import shutil
 
 import docker
+from docker import DockerClient
 
 from start_core.scenario import Scenario
 
@@ -22,22 +23,8 @@ DIR_DOCKER = os.path.dirname(__file__)
 DOCKERFILE_SCENARIO = os.path.join(DIR_DOCKER, 'Dockerfile.scenario')
 
 
-__DOCKER_CLIENT = None  # type: Optional[docker.DockerClient]
-def _docker_client():  # type: () -> docker.DockerClient
-    global __DOCKER_CLIENT
-    if __DOCKER_CLIENT:
-        return __DOCKER_CLIENT
-    try:
-        __DOCKER_CLIENT = docker.from_env()
-    except:
-        logger.exception("failed to start Docker client")
-        raise
-    return __DOCKER_CLIENT
-
-
-def build_base_image():  # type: () -> None
+def build_base_image(dkr):  # type: (DockerClient) -> None
     logger.debug("building base image")
-    dkr = _docker_client()
     try:
         dkr.images.build(path=DIR_DOCKER,
                          tag=BASE_IMAGE_NAME,
@@ -49,9 +36,9 @@ def build_base_image():  # type: () -> None
     logger.debug("built base image")
 
 
-def build_scenario_image(scenario):  # type: (Scenario) -> None
+def build_scenario_image(dkr, scenario):
+    # type: (DockerClient, Scenario) -> None
     logger.debug("building image for scenario: %s", scenario.name)
-    dkr = _docker_client()
     build_base_image()
 
     # create a temporary directory for the scenario
