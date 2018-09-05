@@ -39,7 +39,7 @@ def build_base_image(dkr):  # type: (DockerClient) -> None
 def build_scenario_image(dkr, scenario):
     # type: (DockerClient, Scenario) -> None
     logger.debug("building image for scenario: %s", scenario.name)
-    build_base_image()
+    build_base_image(dkr)
 
     # create a temporary directory for the scenario
     dir_build = tempfile.mkdtemp('.start')
