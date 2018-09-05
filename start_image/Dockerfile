@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as builder
+FROM ubuntu:16.04
 
 # add docker user
 RUN apt-get update \
