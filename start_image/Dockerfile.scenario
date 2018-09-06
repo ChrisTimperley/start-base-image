@@ -16,5 +16,5 @@ RUN cd /opt/ardupilot \
  && ./waf configure \
         --no-submodule-update \
         CXXFLAGS="-mno-push-args" \
- && ./waf build -j2 \
+ && ./waf build \
  && touch /tmp/attack
