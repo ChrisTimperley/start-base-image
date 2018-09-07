@@ -13,6 +13,7 @@ RUN cd /opt/ardupilot \
  && git checkout "${REVISION}" \
  && git submodule update --init --recursive \
  && git apply vulnerability.diff \
+ && echo "DISARM_DELAY 0" >> Tools/autotest/default_params/copter.parm \
  && ./waf configure \
         --no-submodule-update \
         CXXFLAGS="-mno-push-args" \
